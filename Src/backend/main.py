@@ -103,20 +103,36 @@ def login():
 def logout():
     try:
         session.pop('username', None)
+        return {
+                "status" : 0,
+                "result" : 0,
+            }
     except(Exception):
         return {
                 "status" : 0,
                 "result" : -1,
             }
-    else:
-        return {
-                "status" : 0,
-                "result" : 0,
-            }
 
 @app.route('/api/balance')
 def balance():
-    return "Balance"
+    if 'username' in session:
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+            return {
+                    "status" : 0,
+                    "result" : 0,
+                    "balance" : user.balance,
+                }
+        except(sqlalchemy.exc.NoResultFound):
+            return {
+                "status" : 0,
+                "result" : -2,
+            }
+    else:
+        return {
+                "status" : 0,
+                "result" : -1,
+            }
 
 @app.route('/api/fund')
 def fund():
