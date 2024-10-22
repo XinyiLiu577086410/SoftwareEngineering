@@ -31,29 +31,24 @@ class User(db.Model):
     
 class History(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column()
     amount: Mapped[int] = mapped_column()
     date: Mapped[datetime] = mapped_column()
 
-    def __init__(self, amount):
+    def __init__(self, user_id, amount):
+        self.user_id = user_id
         self.amount = amount
         self.date = datetime.now()
     
     def __repr__(self):
         return '<History %r>' % self.id
 
-user_history = sqlalchemy.Table(
-    "user_history",
-    Base.metadata,
-    sqlalchemy.Column('user_id', sqlalchemy.ForeignKey(User.id), primary_key=True),
-    sqlalchemy.Column('history_id', sqlalchemy.ForeignKey(History.id), primary_key=True),
-)
-
 @app.route('/api/register', methods = ['POST'])
 def register():
     if request.form['username'] != None and request.form['password'] != None:
         try:
             user = db.session.execute(db.select(User).filter_by(username=request.form['username'])).scalar_one()
-        except(sqlalchemy.exc.NoResultFound):
+        except sqlalchemy.exc.NoResultFound:
             user = User(request.form['username'], request.form['password'])
             db.session.add(user)
             db.session.commit()
@@ -88,7 +83,7 @@ def login():
                     "status" : 0,
                     "result" : -3,
                 }
-        except(sqlalchemy.exc.NoResultFound):
+        except sqlalchemy.exc.NoResultFound:
             return {
                 "status" : 0,
                 "result" : -2,
@@ -107,7 +102,7 @@ def logout():
                 "status" : 0,
                 "result" : 0,
             }
-    except(Exception):
+    except Exception:
         return {
                 "status" : 0,
                 "result" : -1,
@@ -123,7 +118,7 @@ def balance():
                     "result" : 0,
                     "balance" : user.balance,
                 }
-        except(sqlalchemy.exc.NoResultFound):
+        except sqlalchemy.exc.NoResultFound:
             return {
                 "status" : 0,
                 "result" : -2,
@@ -136,11 +131,66 @@ def balance():
 
 @app.route('/api/fund')
 def fund():
-    return "Fund"
+    if 'username' in session:
+        code = request.args.get('code')
+        if code: # to be changed
+            try:
+                user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+                user.balance += 10
+                user.verified = True
+                history = History(user_id=user.id, amount=10)
+                db.session.add(history)
+                db.session.commit()
+                return {
+                    "status": 0,
+                    "result": 0,
+                    "balance": user.balance,
+                }
+            except sqlalchemy.exc.NoResultFound:
+                return {
+                    "status": 0,
+                    "result": -3,
+                }
+        else:
+            return {
+                "status": 0,
+                "result": -2,
+            }
+    else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
 
 @app.route('/api/consumption')
 def consumption():
-    return "Consumption"
+    if 'username' in session:
+        month = request.args.get('month')
+        if month:
+            try:
+                user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+                histories = db.session.execute(db.select(History).filter_by(user_id=user.id).filter(sqlalchemy.extract('month', History.date) == month).filter(History.amount < 0)).scalars().all()
+                total_consumption = sum([h.amount for h in histories])
+                return {
+                    "status": 0,
+                    "result": 0,
+                    "consumption": total_consumption,
+                }
+            except sqlalchemy.exc.NoResultFound:
+                return {
+                    "status": 0,
+                    "result": -3,
+                }
+        else:
+            return {
+                "status": 0,
+                "result": -2,
+            }
+    else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
 
 if __name__ == "__main__":
     app.run(debug=True)
