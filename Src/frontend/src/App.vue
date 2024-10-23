@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue'
 const isCollapse = ref(false)
 const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
@@ -35,12 +35,14 @@ const input = ref('')
             <template #title>Navigator Two</template>
           </el-menu-item>
         </el-menu>
-        <el-aside style="height: 40%;">
-        </el-aside>
-        <!-- 头像 -->
-        <el-avatar :size="50" :src="circleUrl" />
+        <div class="align">
+        <router-link to="/login">
+          <!-- 头像 -->
+          <el-avatar :size="50" :src="circleUrl" />
+        </router-link>
         <!-- 登出按钮 -->
         <el-button>登出</el-button>
+      </div>
       </el-aside>
       <el-main>
           <el-main style="height: 80%;">
@@ -56,6 +58,7 @@ const input = ref('')
       </el-main>
     </el-container>
   </div>
+  <router-view></router-view>
 </template>
 
 <style scoped>
@@ -70,9 +73,6 @@ const input = ref('')
 .el-container {
   height: 100%;
   width: 100%;
-  /* display: flex; */
-  /* flex-direction: column;
-  justify-content: space-between; */
 }
 
 .el-header,
@@ -92,12 +92,19 @@ const input = ref('')
 }
 
 .el-menu {
+  height: 85%;
   background-color: #d3dce6;
 }
 
-.el-menu-vertical:not(.el-menu--collapse) {
+.el-menu-vertical {
   /* width: 200px; */
   min-height: 400px;
+}
+
+.align {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 </style>
