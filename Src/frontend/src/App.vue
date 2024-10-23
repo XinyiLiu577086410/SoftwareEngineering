@@ -1,9 +1,20 @@
-<script setup lang="ts">
+<script lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import { ref } from 'vue'
-const isCollapse = ref(false)
-const circleUrl = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
-const input = ref('')
+export default {
+  data () {
+    return {
+      alreadyLoggedin : false,
+      isCollapse : false,
+      circleUrl : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
+      input : '',
+    }
+  },
+  methods () {
+    return {
+
+    }
+  }
+}
 </script>
 
 <template>
@@ -14,7 +25,7 @@ const input = ref('')
         <el-menu default-active="2" class="el-menu-vertical" :collapse="isCollapse">
           <el-sub-menu index="1">
             <template #title>
-              <el-icon><location /></el-icon>
+              <el-icon><location/></el-icon>
               <span>Navigator One</span>
             </template>
             <el-menu-item-group>
@@ -38,7 +49,7 @@ const input = ref('')
         <div class="align">
         <router-link to="/login">
           <!-- 头像 -->
-          <el-avatar :size="50" :src="circleUrl" />
+          <el-avatar :size="50" :src="circleUrl"/>
         </router-link>
         <!-- 登出按钮 -->
         <el-button>登出</el-button>
@@ -48,13 +59,7 @@ const input = ref('')
           <el-main style="height: 80%;">
           </el-main>
           <!-- 输入框 -->
-          <el-input
-          v-model="input"
-          :autosize="{ minRows: 1, maxRows: 5 }"
-          type="textarea"
-          placeholder="Please input"
-          clearable
-        />
+          <el-input v-model="input" :autosize="{ minRows: 1, maxRows: 5 }" type="textarea" placeholder="Please input" clearable/>
       </el-main>
     </el-container>
   </div>
@@ -106,5 +111,4 @@ const input = ref('')
   justify-content: space-between;
   align-items: center;
 }
-
 </style>

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 export default {
   data() {
     return {
@@ -29,21 +29,14 @@ export default {
         ],
         confirmPassword: [
           { required: true, message: '请确认密码', trigger: 'blur' },
-          { validator: (rule, value, callback) => {
-              if (value !== this.registerForm.password) {
-                callback(new Error('两次输入的密码不一致'));
-              } else {
-                callback();
-              }
-            }, trigger: 'blur' }
         ]
       }
     };
   },
   methods: {
     // 登录表单提交
-    submitLoginForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    submitLoginForm(this: any, formName: string) {
+      this.$refs[formName].validate((valid: any) => {
         if (valid) {
           this.$message.success('登录成功！');
           // 登录逻辑，如API调用
@@ -53,8 +46,8 @@ export default {
       });
     },
     // 注册表单提交
-    submitRegisterForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    submitRegisterForm(this: any, formName: string) {
+      this.$refs[formName].validate((valid: any) => {
         if (valid) {
           this.$message.success('注册成功！');
           // 注册逻辑，如API调用
@@ -64,7 +57,7 @@ export default {
       });
     },
     // 重置表单
-    resetForm(formName) {
+    resetForm(this: any, formName: string) {
       this.$refs[formName].resetFields();
     },
     // 切换到注册
@@ -96,7 +89,7 @@ export default {
             <el-button @click="resetForm('loginForm')">重置</el-button>
           </el-form-item>
         </el-form>
-        <p>还没有账户？<el-link @click="switchToRegister">注册</el-link></p>
+        <p>还没有账户？<el-button @click="switchToRegister">注册</el-button></p>
       </div>
 
       <div v-else>
@@ -116,7 +109,7 @@ export default {
             <el-button @click="resetForm('registerForm')">重置</el-button>
           </el-form-item>
         </el-form>
-        <p>已有账户？<el-link @click="switchToLogin">登录</el-link></p>
+        <p>已有账户？<el-button @click="switchToLogin">登录</el-button></p>
       </div>
     </el-card>
   </div>
