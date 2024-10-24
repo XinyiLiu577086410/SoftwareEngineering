@@ -1,12 +1,13 @@
 <script lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { ref } from 'vue';
 export default {
   data () {
     return {
-      alreadyLoggedin : false,
-      isCollapse : false,
-      circleUrl : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-      input : '',
+      alreadyLoggedin : ref(false),
+      isCollapse : ref(false),
+      circleUrl : ref('https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'),
+      input : ref(''),
     }
   },
   methods () {
@@ -21,7 +22,7 @@ export default {
     <el-container>
       <el-aside>
         <!-- 目录栏 -->
-        <el-menu default-active="2" class="el-menu-vertical" :collapse="isCollapse">
+        <el-menu default-active="2" :collapse="isCollapse">
           <el-sub-menu index="1">
             <template #title>
               <el-icon><location/></el-icon>
@@ -45,14 +46,14 @@ export default {
             <template #title>Navigator Two</template>
           </el-menu-item>
         </el-menu>
-        <div class="align">
-        <router-link to="/login">
-          <!-- 头像 -->
-          <el-avatar :size="50" :src="circleUrl"/>
-        </router-link>
-        <!-- 登出按钮 -->
-        <el-button>登出</el-button>
-      </div>
+        <el-card class="card">
+          <router-link to="/login">
+            <!-- 头像 -->
+            <el-avatar :size="50" :src="circleUrl"/>
+          </router-link>
+          <!-- 登出按钮 -->
+          <el-button>登出</el-button>
+        </el-card>
       </el-aside>
       <el-main>
           <el-main style="height: 80%;">
@@ -67,47 +68,10 @@ export default {
 
 <style scoped>
 
-.full {
+.card {
   height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-.el-container {
-  height: 100%;
-  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.el-header,
-.el-footer {
-  background-color: #b3c0d1;
-  color: #333;
-}
-
-.el-aside {
-  background-color: #d3dce6;
-  color: #333;
-}
-
-.el-main {
-  background-color: #fbf6f6;
-  color: #333;
-}
-
-.el-menu {
-  height: 85%;
-  background-color: #d3dce6;
-}
-
-.el-menu-vertical {
-  /* width: 200px; */
-  min-height: 400px;
-}
-
-.align {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
 </style>

@@ -1,17 +1,18 @@
 <script lang="ts">
+import { ref } from 'vue';
 export default {
   data() {
     return {
-      isLogin: true,
-      loginForm: {
+      isLogin: ref(true),
+      loginForm: ref({
         username: '',
         password: ''
-      },
-      registerForm: {
+      }),
+      registerForm: ref({
         username: '',
         password: '',
         confirmPassword: ''
-      },
+      }),
       loginRules: {
         username: [
           { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -117,11 +118,11 @@ export default {
 
 <style scoped>
 .auth-container {
-  height: 50%;
-  width: 50%;
+  height: 40%;
+  width: 40%;
   position: absolute;
-  top: 25%;
-  left: 25%;
+  top: 30%;
+  left: 30%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -129,9 +130,13 @@ export default {
 }
 
 .auth-card {
-  width: 400px;
+  height: 100%;
+  width: 100%;
   padding: 20px;
   text-align: center;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .auth-card h2 {
