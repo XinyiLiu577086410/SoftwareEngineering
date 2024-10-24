@@ -76,6 +76,9 @@ export default {
 <template>
   <div class="auth-container">
     <el-card class="auth-card">
+      <router-link to="/">
+        <el-button>首页</el-button>
+      </router-link>
       <div v-if="isLogin">
         <h2>登录</h2>
         <el-form :model="loginForm" :rules="loginRules" ref="loginForm" label-width="80px">

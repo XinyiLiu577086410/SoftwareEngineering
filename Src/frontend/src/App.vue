@@ -42,14 +42,18 @@ export default {
             </el-sub-menu>
           </el-sub-menu>
           <el-menu-item index="2">
-            <el-icon><icon-menu /></el-icon>
+            <el-icon><setting/></el-icon>
             <template #title>Navigator Two</template>
           </el-menu-item>
         </el-menu>
         <el-card class="card">
-          <router-link to="/login">
+          <router-link to="/user">
             <!-- 头像 -->
             <el-avatar :size="50" :src="circleUrl"/>
+          </router-link>
+          <router-link to="/login">
+            <!-- 登录 -->
+            <el-button>登录</el-button>
           </router-link>
           <!-- 登出按钮 -->
           <el-button>登出</el-button>
@@ -67,11 +71,5 @@ export default {
 </template>
 
 <style scoped>
-
-.card {
-  height: 100%;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
 
 </style>

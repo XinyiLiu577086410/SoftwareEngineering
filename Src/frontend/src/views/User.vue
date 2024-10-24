@@ -1,6 +1,7 @@
 <script lang="ts">
 import { ref, defineComponent } from 'vue';
 import * as echarts from 'echarts';
+import router from '@/router';
 
 export default defineComponent({
   data() {
@@ -11,6 +12,10 @@ export default defineComponent({
     };
   },
   methods: {
+    // 跳转到管理界面
+    goToManagement() {
+      router.push({name: 'manage'})
+    },
     // 兑换余额功能
     redeemBalance() {
       if (this.redeemCode) {
@@ -56,13 +61,22 @@ export default defineComponent({
       <el-aside>
         <el-menu>
           <el-menu-item index="1">
-            <i class="el-icon-user"></i>
-            <span>个人信息管理</span>
+            <el-icon><location/></el-icon>
+            <span>个人管理</span>
+          </el-menu-item>
+          <el-menu-item index="2" @click="goToManagement">
+            <el-icon><setting/></el-icon>
+            <span>用户管理</span>
           </el-menu-item>
         </el-menu>
-        <div class="logout">
-          <el-button>登出</el-button>
-        </div>
+        <el-card class="card">
+          <router-link to="/">
+            <el-button>首页</el-button>
+          </router-link>
+          <router-link to="/">
+            <el-button>登出</el-button>
+          </router-link>
+        </el-card>
       </el-aside>
 
       <!-- 右侧内容区域 -->
@@ -82,7 +96,7 @@ export default defineComponent({
             </div>
             <el-input v-model="redeemCode" placeholder="输入兑换码">
               <template #prefix>
-                <el-icon-search />
+                <el-icon><location/></el-icon>
               </template>
             </el-input>
             <el-button type="primary" @click="redeemBalance">兑换余额</el-button>
@@ -117,9 +131,4 @@ export default defineComponent({
   margin-bottom: 20px;
 }
 
-.logout {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-}
 </style>
