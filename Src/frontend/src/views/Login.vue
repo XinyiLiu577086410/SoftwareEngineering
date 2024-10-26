@@ -1,9 +1,11 @@
 <script lang="ts">
 import { ref } from 'vue';
+import { useloginStatus } from '@/stores/loginStatus';
 
 export default {
   data() {
     return {
+      loginStatus : null,
       isLogin: ref(true),
       loginForm: ref({
         username: '',
@@ -46,6 +48,8 @@ export default {
             console.log(response.data)
             if (response.data.result == 0) {
               this.$message.success('登录成功');
+              this.loginStatus.setLoginStatus(true);
+              this.loginStatus.setUsername(this.loginForm.username);
               this.$router.push('/')
             } else {
               this.$message.error('登录失败');
@@ -84,7 +88,10 @@ export default {
     switchToLogin() {
       this.isLogin = true;
     }
-  }
+  },
+  created() {
+    this.loginStatus = useloginStatus();
+  },
 };
 </script>
 

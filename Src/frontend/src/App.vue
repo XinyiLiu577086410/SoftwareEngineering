@@ -1,10 +1,11 @@
 <script lang="ts">
 import { RouterView } from 'vue-router'
 import { ref } from 'vue';
+import { loginStatus } from '@/store/loginStatus';
+
 export default {
   data () {
     return {
-      alreadyLoggedin : ref(false),
       isCollapse : ref(false),
       circleUrl : ref('https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'),
       input : ref(''),

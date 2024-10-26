@@ -50,7 +50,7 @@ export default {
     this.chart = this.$refs.chart as HTMLElement;
     this.initChart();
   }
-});
+};
 </script>
 
 <template>
