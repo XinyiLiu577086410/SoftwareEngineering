@@ -1,4 +1,5 @@
 from flask import Flask, request, session
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -8,6 +9,7 @@ class Base(DeclarativeBase):
     pass
 
 app = Flask(__name__)
+CORS(app)
 app.secret_key = b'8500724ec607b7b2fd7ef161bde8b8b0'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///userdata.db'
 db = SQLAlchemy(model_class=Base)
@@ -77,11 +79,13 @@ def users():
 
 @app.route('/api/register', methods = ['POST'])
 def register():
-    if request.form['username'] != None and request.form['password'] != None:
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if username != None and password != None:
         try:
-            user = db.session.execute(db.select(User).filter_by(username=request.form['username'])).scalar_one()
+            user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one()
         except sqlalchemy.exc.NoResultFound:
-            user = User(request.form['username'], request.form['password'])
+            user = User(username, password)
             db.session.add(user)
             db.session.commit()
             return {
@@ -101,10 +105,13 @@ def register():
 
 @app.route('/api/login', methods = ['POST'])
 def login():
-    if request.form['username'] != None and request.form['password'] != None:
+    app.logger.info(request.json)
+    username = request.json.get('username')
+    password = request.json.get('password')
+    if username != None and password != None:
         try:
-            user = db.session.execute(db.select(User).filter_by(username=request.form['username'])).scalar_one()
-            if user.password == request.form['password']:
+            user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one()
+            if user.password == password:
                 session['username'] = user.username
                 return {
                         "status" : 0,

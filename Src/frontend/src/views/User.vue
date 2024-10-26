@@ -1,9 +1,8 @@
 <script lang="ts">
-import { ref, defineComponent } from 'vue';
+import { ref } from 'vue';
 import * as echarts from 'echarts';
-import router from '@/router';
 
-export default defineComponent({
+export default {
   data() {
     return {
       balance: ref(10),          // 当前余额
@@ -14,7 +13,7 @@ export default defineComponent({
   methods: {
     // 跳转到管理界面
     goToManagement() {
-      router.push({name: 'manage'})
+      this.$router.push({name: 'manage'})
     },
     // 兑换余额功能
     redeemBalance() {

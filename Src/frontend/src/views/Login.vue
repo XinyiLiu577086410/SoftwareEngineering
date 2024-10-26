@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ref } from 'vue';
+
 export default {
   data() {
     return {
@@ -35,13 +36,27 @@ export default {
     };
   },
   methods: {
-    // 登录表单提交
-    submitLoginForm(this: any, formName: string) {
-      this.$refs[formName].validate((valid: any) => {
+    async submitLoginForm(this: any, formName: string) {
+      // 校验表单
+      this.$refs[formName].validate(async (valid: boolean) => {
         if (valid) {
-          this.$message.success('登录成功！');
-          // 登录逻辑，如API调用
+          try {
+            console.log(this.loginForm)
+            const response = await this.$axios.post('/api/login', this.loginForm);
+            console.log(response.data)
+            if (response.data.result == 0) {
+              this.$message.success('登录成功');
+              this.$router.push('/')
+            } else {
+              this.$message.error('登录失败');
+            }
+          } catch (error) {
+            // 处理请求错误
+            console.error(error);
+            this.$message.error('登录请求失败，请稍后重试');
+          }
         } else {
+          // 表单验证未通过
           this.$message.error('请正确填写表单');
         }
       });

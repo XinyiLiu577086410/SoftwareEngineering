@@ -6,11 +6,15 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import axios from 'axios'
 
 import App from './App.vue'
 import router from './router'
 
+axios.defaults.baseURL = 'http://127.0.0.1:5000';
+
 const app = createApp(App)
+app.config.globalProperties.$axios = axios;
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }

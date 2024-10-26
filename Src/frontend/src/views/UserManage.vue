@@ -1,9 +1,9 @@
 <script lang="ts">
 import axios from 'axios';
-import { defineComponent, ref } from 'vue';
+import { ref } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
-export default defineComponent({
+export default {
   data() {
     return {
       currentPage: 1, // 当前页码
@@ -79,7 +79,7 @@ export default defineComponent({
   //   // 组件挂载时加载第一页的数据
   //   this.loadUserData();
   // }
-});
+};
 </script>
 
 <template>

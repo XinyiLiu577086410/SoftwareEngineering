@@ -1,5 +1,5 @@
 <script lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import { ref } from 'vue';
 export default {
   data () {
@@ -10,8 +10,12 @@ export default {
       input : ref(''),
     }
   },
-  methods () {
-    return {
+  methods: {
+    switchToLogin() {
+      this.$router.push('/login');
+    },
+    switchToUser() {
+      this.$router.push('/user');
     }
   }
 }
@@ -47,14 +51,10 @@ export default {
           </el-menu-item>
         </el-menu>
         <el-card class="card">
-          <router-link to="/user">
-            <!-- 头像 -->
-            <el-avatar :size="50" :src="circleUrl"/>
-          </router-link>
-          <router-link to="/login">
-            <!-- 登录 -->
-            <el-button>登录</el-button>
-          </router-link>
+          <!-- 头像 -->
+          <el-avatar :size="50" :src="circleUrl" @click="switchToUser"/>
+          <!-- 登录 -->
+          <el-button @click="switchToLogin">登录</el-button>
           <!-- 登出按钮 -->
           <el-button>登出</el-button>
         </el-card>
