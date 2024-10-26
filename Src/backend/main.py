@@ -43,6 +43,38 @@ class History(db.Model):
     def __repr__(self):
         return '<History %r>' % self.id
 
+
+@app.route('/api/users', methods = ['GET'])
+def users():
+    if 'username' in session:
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+            if user.manager:
+                users = db.session.execute(db.select(User)).scalars().all()
+                return {
+                    "status": 0,
+                    "result": 0,
+                    "users": [{"username": u.username,
+                               "group": u.manager,
+                               "balance": u.balance} for u in users],
+                }
+            else:
+                return {
+                    "status": 0,
+                    "result": -3,
+                }
+        except sqlalchemy.exc.NoResultFound:
+            return {
+                "status": 0,
+                "result": -2,
+            }
+    else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
+    
+
 @app.route('/api/register', methods = ['POST'])
 def register():
     if request.form['username'] != None and request.form['password'] != None:
