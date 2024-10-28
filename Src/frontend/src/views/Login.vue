@@ -66,11 +66,25 @@ export default {
       });
     },
     // 注册表单提交
-    submitRegisterForm(this: any, formName: string) {
-      this.$refs[formName].validate((valid: any) => {
+    async submitRegisterForm(this: any, formName: string) {
+      this.$refs[formName].validate(async (valid: any) => {
         if (valid) {
-          this.$message.success('注册成功！');
-          // 注册逻辑，如API调用
+          try {
+            console.log(this.registerForm)
+            const response = await this.$axios.post('/api/register', this.registerForm);
+            console.log(response.data)
+            if (response.data.result == 0) {
+              this.$message.success('注册成功');
+              this.switchToLogin();
+              this.$router.push('/login');
+            } else {
+              this.$message.error('注册失败');
+            }
+          } catch (error) {
+            // 处理请求错误
+            console.error(error);
+            this.$message.error('注册请求失败，请稍后重试');
+          }
         } else {
           this.$message.error('请正确填写表单');
         }
