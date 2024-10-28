@@ -63,6 +63,29 @@ class Chat(db.Model):
     def __repr__(self):
         return '<Chat %r>' % self.id
 
+@app.route('/api/info', methods = ['GET'])
+def info():
+    if 'username' in session:
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+            return {
+                "status": 0,
+                "result": 0,
+                "username": user.username,
+                "balance": user.balance,
+                "group": user.manager,
+            }
+        except sqlalchemy.exc.NoResultFound:
+            return {
+                "status": 0,
+                "result": -2,
+            }
+    else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
+
 @app.route('/api/users', methods = ['GET'])
 def users():
     if 'username' in session:
@@ -185,8 +208,9 @@ def balance():
                 "result" : -1,
             }
 
-@app.route('/api/fund')
+@app.route('/api/fund', methods=['GET'])
 def fund():
+    app.logger.info(request.args.get('code'))
     if 'username' in session:
         code = request.args.get('code')
         if code: # to be changed
@@ -221,26 +245,33 @@ def fund():
 @app.route('/api/consumption')
 def consumption():
     if 'username' in session:
-        month = request.args.get('month')
-        if month:
-            try:
-                user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
-                histories = db.session.execute(db.select(History).filter_by(user_id=user.id).filter(sqlalchemy.extract('month', History.date) == month).filter(History.amount < 0)).scalars().all()
-                total_consumption = sum([h.amount for h in histories])
-                return {
-                    "status": 0,
-                    "result": 0,
-                    "consumption": total_consumption,
-                }
-            except sqlalchemy.exc.NoResultFound:
-                return {
-                    "status": 0,
-                    "result": -3,
-                }
-        else:
+        # 获取当前月份
+        current_month = datetime.now().month
+        months = [(current_month - i - 1) % 12 + 1 for i in range(6)]
+        month_names = [str(month) for month in months]
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+            total_consumption = []
+            for month in months:
+                histories = db.session.execute(
+                    db.select(History)
+                    .filter_by(user_id=user.id)
+                    .filter(sqlalchemy.extract('month', History.date) == month)
+                    .filter(History.amount < 0)
+                ).scalars().all()
+                total_consumption.append(sum([h.amount for h in histories]))
             return {
                 "status": 0,
-                "result": -2,
+                "result": 0,
+                "consumption": {
+                    "months": month_names,
+                    "values": total_consumption,
+                },
+            }
+        except sqlalchemy.exc.NoResultFound:
+            return {
+                "status": 0,
+                "result": -3,
             }
     else:
         return {

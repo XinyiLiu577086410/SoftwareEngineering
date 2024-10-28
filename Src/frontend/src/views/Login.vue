@@ -39,28 +39,27 @@ export default {
   },
   methods: {
     async submitLoginForm(this: any, formName: string) {
-      // 校验表单
       this.$refs[formName].validate(async (valid: boolean) => {
         if (valid) {
           try {
-            console.log(this.loginForm)
             const response = await this.$axios.post('/api/login', this.loginForm);
-            console.log(response.data)
-            if (response.data.result == 0) {
+            if (response.data.result === 0) {
               this.$message.success('登录成功');
               this.loginStatus.setLoginStatus(true);
               this.loginStatus.setUsername(this.loginForm.username);
-              this.$router.push('/')
+              this.$router.push('/');
+            } else if (response.data.result === -2) {
+              this.$message.error('用户不存在');
+            } else if (response.data.result === -3) {
+              this.$message.error('密码错误');
             } else {
               this.$message.error('登录失败');
             }
           } catch (error) {
-            // 处理请求错误
             console.error(error);
-            this.$message.error('登录请求失败，请稍后重试');
+            this.$message.error('登录请求出错，请稍后重试');
           }
         } else {
-          // 表单验证未通过
           this.$message.error('请正确填写表单');
         }
       });

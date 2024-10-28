@@ -5,7 +5,7 @@ import * as echarts from 'echarts';
 export default {
   data() {
     return {
-      balance: ref(10),          // 当前余额
+      balance: ref(0),          // 当前余额
       redeemCode: ref(''),       // 充值兑换码
       chart: null as HTMLElement | null // 图表 DOM 引用
     };
@@ -16,32 +16,78 @@ export default {
       this.$router.push({name: 'manage'})
     },
     // 兑换余额功能
-    redeemBalance() {
+    async redeemBalance() {
       if (this.redeemCode) {
-        this.balance += 10; // 模拟充值逻辑
-        this.redeemCode = ''; // 清空输入框
+        try {
+            console.log(this.redeemCode)
+            const response = await this.$axios.get('/api/fund', {
+              params:{
+                code: this.redeemCode,
+              }
+            });
+            console.log(response.data)
+            if (response.data.result == 0) {
+              this.$message.success('充值成功');
+              this.balance = response.data.balance;
+              this.redeemCode = ''; // 清空输入框
+            } else {
+              this.$message.error('充值失败');
+            }
+          } catch (error) {
+            // 处理请求错误
+            console.error(error);
+            this.$message.error('充值请求失败，请稍后重试');
+          }
+      }
+    },
+    // load user info, -1 for not login, -2 for user not present
+    async loadUserInfo() {
+      try {
+        const response = await this.$axios.get('/api/info');
+        if (response.data.result == 0) {
+          this.balance = response.data.balance;
+        } else {
+          this.$message.error('用户信息获取失败');
+        }
+      } catch (error) {
+        // 处理请求错误
+        console.error(error);
+        this.$message.error('用户信息获取出错，请稍后重试');
       }
     },
     // 初始化图表
-    initChart() {
-      if (this.chart) {
-        const chartInstance = echarts.init(this.chart);
-        const option = {
-          xAxis: {
-            type: 'category',
-            data: ['1月', '2月', '3月', '4月', '5月']
-          },
-          yAxis: {
-            type: 'value'
-          },
-          series: [
-            {
-              data: [100, 150, 200, 50, 120],
-              type: 'line'
-            }
-          ]
-        };
-        chartInstance.setOption(option);
+    async initChart() {
+      try {
+        const response = await this.$axios.get('/api/consumption');
+        if (response.data.status === 0) {
+          const { months, values } = response.data.consumption;
+          // 使用 ECharts 显示数据
+          if (this.chart) {
+            const chartInstance = echarts.init(this.chart);
+            const option = {
+              xAxis: {
+                type: 'category',
+                data: months.map(month => `${month}月`), // 处理月份名称
+              },
+              yAxis: {
+                type: 'value'
+              },
+              series: [
+                {
+                  data: values.map(value => Math.abs(value)), // 将消费金额转为正数
+                  type: 'line',
+                  smooth: true, // 平滑曲线
+                }
+              ]
+            };
+            chartInstance.setOption(option);
+          }
+        } else {
+          this.$message.error('获取消费数据失败');
+        }
+      } catch (error) {
+        console.error(error);
+        this.$message.error('请求出错，请稍后重试');
       }
     }
   },
@@ -49,6 +95,7 @@ export default {
     // 等页面挂载完成后初始化图表
     this.chart = this.$refs.chart as HTMLElement;
     this.initChart();
+    this.loadUserInfo();
   }
 };
 </script>
