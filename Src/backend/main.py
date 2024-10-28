@@ -73,7 +73,7 @@ def info():
                 "result": 0,
                 "username": user.username,
                 "balance": user.balance,
-                "group": user.manager,
+                "manager": user.manager,
             }
         except sqlalchemy.exc.NoResultFound:
             return {

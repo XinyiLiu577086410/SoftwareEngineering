@@ -1,11 +1,11 @@
 <script lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useloginStatus } from '@/stores/loginStatus';
 
 export default {
   data() {
     return {
-      loginStatus : null,
+      loginStatus : computed(() => useloginStatus()),
       isLogin: ref(true),
       loginForm: ref({
         username: '',
@@ -72,7 +72,7 @@ export default {
             console.log(this.registerForm)
             const response = await this.$axios.post('/api/register', this.registerForm);
             console.log(response.data)
-            if (response.data.result == 0) {
+            if (response.data.result === 0) {
               this.$message.success('注册成功');
               this.switchToLogin();
               this.$router.push('/login');
@@ -101,9 +101,6 @@ export default {
     switchToLogin() {
       this.isLogin = true;
     }
-  },
-  created() {
-    this.loginStatus = useloginStatus();
   },
 };
 </script>

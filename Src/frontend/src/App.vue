@@ -1,22 +1,32 @@
 <script lang="ts">
 import { RouterView } from 'vue-router'
-import { ref } from 'vue';
-import { loginStatus } from '@/store/loginStatus';
+import { computed, ref } from 'vue';
+import { useloginStatus } from '@/stores/loginStatus';
 
 export default {
   data () {
     return {
+      loginStatus : computed(() => useloginStatus()),
       isCollapse : ref(false),
       circleUrl : ref('https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'),
       input : ref(''),
     }
   },
   methods: {
-    switchToLogin() {
-      this.$router.push('/login');
-    },
-    switchToUser() {
-      this.$router.push('/user');
+    async handleLogout() {
+      try {
+        const response = await this.$axios.get('/api/logout');
+        if (response.data.result === 0) {
+          this.loginStatus.logout();
+          this.$message.success('登出成功');
+          this.$router.push('/');
+        } else {
+          this.$message.error('登出失败，请稍后重试');
+        }
+      } catch (error) {
+        this.$message.error('请求出错，请稍后重试');
+        console.error('Logout error:', error);
+      }
     }
   }
 }
@@ -52,12 +62,19 @@ export default {
           </el-menu-item>
         </el-menu>
         <el-card class="card">
-          <!-- 头像 -->
-          <el-avatar :size="50" :src="circleUrl" @click="switchToUser"/>
-          <!-- 登录 -->
-          <el-button @click="switchToLogin">登录</el-button>
-          <!-- 登出按钮 -->
-          <el-button>登出</el-button>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- 头像 -->
+            <el-avatar :size="50" :src="circleUrl" @click="$router.push('/user')"/>
+            <div style="font-size: large">{{ loginStatus.username }}</div>
+            <div v-if="loginStatus.isLoggedIn">
+              <!-- 登出 -->
+              <el-button @click="handleLogout">登出</el-button>
+            </div>
+            <div v-else>
+              <!-- 登录 -->
+              <el-button @click="$router.push('/login')">登录</el-button>
+            </div>
+          </div>
         </el-card>
       </el-aside>
       <el-main>

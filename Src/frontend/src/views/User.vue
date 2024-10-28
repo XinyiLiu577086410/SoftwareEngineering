@@ -1,20 +1,18 @@
 <script lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import * as echarts from 'echarts';
+import { useloginStatus } from '@/stores/loginStatus';
 
 export default {
   data() {
     return {
+      loginStatus : computed(() => useloginStatus()),
       balance: ref(0),          // 当前余额
       redeemCode: ref(''),       // 充值兑换码
       chart: null as HTMLElement | null // 图表 DOM 引用
     };
   },
   methods: {
-    // 跳转到管理界面
-    goToManagement() {
-      this.$router.push({name: 'manage'})
-    },
     // 兑换余额功能
     async redeemBalance() {
       if (this.redeemCode) {
@@ -26,7 +24,7 @@ export default {
               }
             });
             console.log(response.data)
-            if (response.data.result == 0) {
+            if (response.data.result === 0) {
               this.$message.success('充值成功');
               this.balance = response.data.balance;
               this.redeemCode = ''; // 清空输入框
@@ -40,12 +38,12 @@ export default {
           }
       }
     },
-    // load user info, -1 for not login, -2 for user not present
     async loadUserInfo() {
       try {
         const response = await this.$axios.get('/api/info');
-        if (response.data.result == 0) {
+        if (response.data.result === 0) {
           this.balance = response.data.balance;
+          this.loginStatus.setManager(response.data.manager);
         } else {
           this.$message.error('用户信息获取失败');
         }
@@ -59,7 +57,7 @@ export default {
     async initChart() {
       try {
         const response = await this.$axios.get('/api/consumption');
-        if (response.data.status === 0) {
+        if (response.data.result === 0) {
           const { months, values } = response.data.consumption;
           // 使用 ECharts 显示数据
           if (this.chart) {
@@ -89,6 +87,21 @@ export default {
         console.error(error);
         this.$message.error('请求出错，请稍后重试');
       }
+    },
+    async handleLogout() {
+      try {
+        const response = await this.$axios.get('/api/logout');
+        if (response.data.result === 0) {
+          this.loginStatus.logout();
+          this.$message.success('登出成功');
+          this.$router.push('/');
+        } else {
+          this.$message.error('登出失败，请稍后重试');
+        }
+      } catch (error) {
+        this.$message.error('请求出错，请稍后重试');
+        console.error('Logout error:', error);
+      }
     }
   },
   mounted() {
@@ -110,18 +123,18 @@ export default {
             <el-icon><location/></el-icon>
             <span>个人管理</span>
           </el-menu-item>
-          <el-menu-item index="2" @click="goToManagement">
+          <el-menu-item index="2" @click="$router.push('/manage')">
             <el-icon><setting/></el-icon>
             <span>用户管理</span>
           </el-menu-item>
         </el-menu>
         <el-card class="card">
-          <router-link to="/">
-            <el-button>首页</el-button>
-          </router-link>
-          <router-link to="/">
-            <el-button>登出</el-button>
-          </router-link>
+          <div style="display: flex; align-items: center; gap: 10px;">
+              <el-button @click="$router.push('/')">首页</el-button>
+            <div v-if="loginStatus.isLoggedIn">
+              <el-button @click="handleLogout">登出</el-button>
+            </div>
+          </div>
         </el-card>
       </el-aside>
 

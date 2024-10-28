@@ -47,7 +47,22 @@ export default {
         this.$message.error('获取用户数据出错，请稍后重试');
         console.error('Error fetching user data:', error);
       }
-    }
+    },
+    async handleLogout() {
+      try {
+        const response = await this.$axios.get('/api/logout');
+        if (response.data.result === 0) {
+          this.loginStatus.logout();
+          this.$message.success('登出成功');
+          this.$router.push('/');
+        } else {
+          this.$message.error('登出失败，请稍后重试');
+        }
+      } catch (error) {
+        this.$message.error('请求出错，请稍后重试');
+        console.error('Logout error:', error);
+      }
+    },
   },
   mounted() {
     this.loadUserData();
@@ -79,12 +94,10 @@ export default {
           </el-menu-item>
         </el-menu>
         <el-card class="card">
-          <router-link to="/user">
-            <!-- 用户中心 -->
-            <el-button>用户中心</el-button>
-          </router-link>
+          <!-- 用户中心 -->
+          <el-button @click="$router.push('/user')">用户中心</el-button>
           <!-- 登出按钮 -->
-          <el-button>登出</el-button>
+          <el-button @click="handleLogout">登出</el-button>
         </el-card>
       </el-aside>
 
