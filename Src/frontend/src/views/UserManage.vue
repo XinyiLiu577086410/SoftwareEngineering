@@ -1,84 +1,57 @@
 <script lang="ts">
 import axios from 'axios';
-import { ref } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
 
 export default {
   data() {
     return {
-      currentPage: 1, // 当前页码
-      total: 2, // 数据总数
-      userData: [
-        { username: 'John', group: 'User', balance: '10.00' },
-        { username: 'Alex', group: 'User', balance: '5.00' },
-      ]
-      // userData: [] as Array<any>
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      userData: []
     };
   },
   methods: {
     // 处理编辑操作
-    handleEdit(row: any) {
-      ElMessage({
-        message: `管理用户: ${row.username}`,
-        type: 'success'
-      });
+    handleEdit(row : any) {
+      this.$message.success(`管理用户: ${row.username}`);
     },
     // 处理删除操作
-    handleDelete(row: any) {
-      ElMessageBox.confirm(
-        `确认删除用户 ${row.username} 吗？`,
-        '提示',
-        {
+    async handleDelete(row : any) {
+      try {
+        await this.$confirm(`确认删除用户 ${row.username} 吗？`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
-        }
-      )
-        .then(() => {
-          ElMessage({
-            type: 'success',
-            message: `用户 ${row.username} 已删除`
-          });
-        })
-        .catch(() => {
-          ElMessage({
-            type: 'info',
-            message: '删除已取消'
-          });
         });
+        // 发起删除请求（示例代码中未实现具体删除操作）
+        this.$message.success(`用户 ${row.username} 已删除`);
+      } catch {
+        this.$message.info('删除已取消');
+      }
     },
     // 处理分页变化
     handlePageChange(page: number) {
       this.currentPage = page;
-      // 模拟分页数据请求
       this.loadUserData();
     },
-    // 模拟加载用户数据
-    // 请求用户数据
     async loadUserData() {
       try {
-          const response = await axios.get('https://api.example.com/users', {
-          params: {
-              page: this.currentPage, // 请求的页码
-              pageSize: 10 // 每页显示的数据数量
-          }
-          });
-          // 更新用户数据和总条目数
+        const response = await axios.get('/api/users');
+        if (response.data.result === 0) {
+          this.total = response.data.users.length;
           this.userData = response.data.users;
-          this.total = response.data.total; // 假设后端返回了总数据量
+        } else {
+          this.$message.error('获取用户数据失败，权限不足');
+        }
       } catch (error) {
-          ElMessage({
-          message: '获取用户数据失败，请稍后重试',
-          type: 'error'
-          });
-          console.error('Error fetching user data:', error);
+        this.$message.error('获取用户数据出错，请稍后重试');
+        console.error('Error fetching user data:', error);
       }
     }
   },
-  // mounted() {
-  //   // 组件挂载时加载第一页的数据
-  //   this.loadUserData();
-  // }
+  mounted() {
+    this.loadUserData();
+  }
 };
 </script>
 

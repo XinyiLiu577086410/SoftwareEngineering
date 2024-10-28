@@ -97,7 +97,7 @@ def users():
                     "status": 0,
                     "result": 0,
                     "users": [{"username": u.username,
-                               "group": u.manager,
+                               "group": 'Manger' if u.manager else 'User',
                                "balance": u.balance} for u in users],
                 }
             else:
@@ -245,9 +245,9 @@ def fund():
 @app.route('/api/consumption')
 def consumption():
     if 'username' in session:
-        # 获取当前月份
         current_month = datetime.now().month
         months = [(current_month - i - 1) % 12 + 1 for i in range(6)]
+        months = months[::-1]
         month_names = [str(month) for month in months]
         try:
             user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
