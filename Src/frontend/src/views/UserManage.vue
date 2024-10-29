@@ -1,51 +1,31 @@
 <script lang="ts">
-import axios from 'axios';
+import UserManagement from '@/components/UserManagement.vue';
+import ModelManagement from '@/components/ModelManagement.vue';
+import ClusterManagement from '@/components/ClusterManagement.vue';
+import LogManagement from '@/components/LogManagement.vue';
 
 export default {
   data() {
     return {
-      currentPage: 1,
-      pageSize: 10,
-      total: 0,
-      userData: []
+      currentComponent: 'UserManagement', // 默认显示的组件
     };
   },
   methods: {
-    // 处理编辑操作
-    handleEdit(row : any) {
-      this.$message.success(`管理用户: ${row.username}`);
-    },
-    // 处理删除操作
-    async handleDelete(row : any) {
-      try {
-        await this.$confirm(`确认删除用户 ${row.username} 吗？`, '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        });
-        // 发起删除请求（示例代码中未实现具体删除操作）
-        this.$message.success(`用户 ${row.username} 已删除`);
-      } catch {
-        this.$message.info('删除已取消');
-      }
-    },
-    // 处理分页变化
-    handlePageChange(page: number) {
-      this.currentPage = page;
-      this.loadUserData();
-    },
-    async loadUserData() {
-      try {
-        const response = await axios.get('/api/users');
-        if (response.data.result === 0) {
-          this.total = response.data.users.length;
-          this.userData = response.data.users;
-        } else {
-          this.$message.error('获取用户数据失败，权限不足');
-        }
-      } catch (error) {
-        this.$message.error('获取用户数据出错，请稍后重试');
-        console.error('Error fetching user data:', error);
+    // 处理菜单选择
+    handleMenuSelect(index) {
+      switch (index) {
+        case '1':
+          this.currentComponent = 'UserManagement';
+          break;
+        case '2':
+          this.currentComponent = 'ModelManagement';
+          break;
+        case '3':
+          this.currentComponent = 'ClusterManagement';
+          break;
+        case '4':
+          this.currentComponent = 'LogManagement';
+          break;
       }
     },
     async handleLogout() {
@@ -64,79 +44,52 @@ export default {
       }
     },
   },
-  mounted() {
-    this.loadUserData();
-  }
+  components: {
+    UserManagement,
+    ModelManagement,
+    ClusterManagement,
+    LogManagement,
+  },
 };
 </script>
 
 <template>
-  <div class="full">
-    <!-- 侧边栏 -->
-    <el-container>
-      <el-aside>
-        <el-menu default-active="1">
-          <el-menu-item index="1">
-            <el-icon><user/></el-icon>
-            <span>用户管理</span>
-          </el-menu-item>
-          <el-menu-item index="2">
-            <el-icon><goods/></el-icon>
-            <span>模型管理</span>
-          </el-menu-item>
-          <el-menu-item index="3">
-            <el-icon><opportunity/></el-icon>
-            <span>集群管理</span>
-          </el-menu-item>
-          <el-menu-item index="4">
-            <el-icon><message/></el-icon>
-            <span>日志管理</span>
-          </el-menu-item>
-        </el-menu>
-        <el-card class="card">
-          <!-- 用户中心 -->
-          <el-button @click="$router.push('/user')">用户中心</el-button>
-          <!-- 登出按钮 -->
-          <el-button @click="handleLogout">登出</el-button>
-        </el-card>
-      </el-aside>
-
-      <!-- 主体内容 -->
-      <el-main>
-        <!-- 表格展示用户信息 -->
-        <el-table :data="userData">
-          <el-table-column prop="username" label="用户名"></el-table-column>
-          <el-table-column prop="group" label="群组"></el-table-column>
-          <el-table-column prop="balance" label="余额"></el-table-column>
-          <el-table-column label="操作">
-            <template #default="scope">
-              <el-button @click="handleEdit(scope.row)" type="primary">管理</el-button>
-              <el-button @click="handleDelete(scope.row)" type="primary" style="color: red;">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <!-- 分页 -->
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          :total="total"
-          :current-page="currentPage"
-          @current-change="handlePageChange">
-        </el-pagination>
-      </el-main>
-    </el-container>
+  <div style="display: flex" class="full">
+    <el-aside>
+      <!-- 菜单 -->
+      <el-menu default-active="1" @select="handleMenuSelect">
+        <el-menu-item index="1">
+          <el-icon><user /></el-icon>
+          <span>用户管理</span>
+        </el-menu-item>
+        <el-menu-item index="2">
+          <el-icon><goods /></el-icon>
+          <span>模型管理</span>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <el-icon><opportunity /></el-icon>
+          <span>集群管理</span>
+        </el-menu-item>
+        <el-menu-item index="4">
+          <el-icon><message /></el-icon>
+          <span>日志管理</span>
+        </el-menu-item>
+      </el-menu>
+      <!-- 用户中心及登出按钮 -->
+      <el-card class="card">
+        <el-button @click="$router.push('/user')">用户中心</el-button>
+        <el-button @click="handleLogout">登出</el-button>
+      </el-card>
+    </el-aside>
+    <el-main>
+      <div style="flex-grow: 1">
+      <!-- 动态组件 -->
+      <component :is="currentComponent" />
+      </div>
+    </el-main>
   </div>
 </template>
-  
-<style scoped>
-.user-management-container {
-  padding: 20px;
-}
 
-.el-pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-</style>  
+<style scoped>
+
+</style>
