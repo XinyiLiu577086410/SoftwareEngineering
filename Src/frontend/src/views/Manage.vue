@@ -83,8 +83,8 @@ export default {
     </el-aside>
     <el-main>
       <div style="flex-grow: 1">
-      <!-- 动态组件 -->
-      <component :is="currentComponent" />
+        <!-- 动态组件 -->
+        <component :is="currentComponent" />
       </div>
     </el-main>
   </div>

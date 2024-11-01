@@ -1,6 +1,4 @@
 <script lang="ts">
-import axios from 'axios';
-
 export default {
   data() {
     return {
@@ -36,7 +34,7 @@ export default {
     },
     async loadUserData() {
       try {
-        const response = await axios.get('/api/users');
+        const response = await this.$axios.get('/api/users');
         if (response.data.result === 0) {
           this.total = response.data.users.length;
           this.userData = response.data.users;
@@ -46,21 +44,6 @@ export default {
       } catch (error) {
         this.$message.error('获取用户数据出错，请稍后重试');
         console.error('Error fetching user data:', error);
-      }
-    },
-    async handleLogout() {
-      try {
-        const response = await this.$axios.get('/api/logout');
-        if (response.data.result === 0) {
-          this.loginStatus.logout();
-          this.$message.success('登出成功');
-          this.$router.push('/');
-        } else {
-          this.$message.error('登出失败，请稍后重试');
-        }
-      } catch (error) {
-        this.$message.error('请求出错，请稍后重试');
-        console.error('Logout error:', error);
       }
     },
   },
