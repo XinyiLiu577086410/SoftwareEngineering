@@ -12,7 +12,7 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-app.config.globalProperties.$axios = axios;
+app.config.globalProperties.$axios = axios.create();
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)

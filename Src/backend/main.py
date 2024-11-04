@@ -1,4 +1,4 @@
-from flask import Flask, request, session
+from flask import Flask, request, session, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
@@ -406,6 +406,16 @@ def chat():
                 "result": -2,
             }
     else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
+    
+@app.route('/pictures/<filename>', methods = ['GET'])
+def get_picture(filename):
+    try:
+        return send_from_directory("pictures", filename)
+    except FileNotFoundError:
         return {
             "status": 0,
             "result": -1,
