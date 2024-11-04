@@ -11,6 +11,8 @@ export default {
       isCollapse : false,
       circleUrl : 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
       input : '',
+      module_id : 0,
+      chatHistory: [] as Array<any>,
       chatDataToday : [] as Array<any>,
       chatDataLast3Days : [] as Array<any>,
       chatDataThisWeek : [] as Array<any>,
@@ -21,6 +23,12 @@ export default {
   methods: {
     async loadChatHistory() {
       try {
+        this.chatDataToday = [];
+        this.chatDataLast3Days = [];
+        this.chatDataThisWeek = [];
+        this.chatDataThisMonth = [];
+        this.chatDataOlder = [];
+
         const response = await this.$axios.get('/api/chat_history');
         if (response.data.result === 0) {
           const chatData = response.data.chat;
@@ -53,6 +61,27 @@ export default {
         console.error('加载聊天记录出错', error);
       }
     },
+    async handleSubmit() {
+      if (this.input.trim()) {
+        this.chatHistory.push({ type: 'user', content: this.input });
+        try {
+          const response = await this.$axios.post('/api/chat', { module_id : this.module_id, prompt: this.input });
+          if (response.data.status === 0 && response.data.result === 0) {
+            this.chatHistory.push({
+              type: 'bot',
+              content: { picture: response.data.picture || null },
+            });
+          } else if (response.data.result === -1) {
+            this.chatHistory.push({ type: 'bot', content: { picture: null, message: "Please log in." } });
+          } else if (response.data.result === -2) {
+            this.chatHistory.push({ type: 'bot', content: { picture: null, message: "Insufficient balance." } });
+          }
+        } catch (error) {
+          console.error("Error with chat API:", error);
+        }
+        this.input = '';
+      }
+    },
     async handleLogout() {
       try {
         const response = await this.$axios.get('/api/logout');
@@ -81,41 +110,41 @@ export default {
       <el-aside>
         <!-- 目录栏 -->
         <el-menu default-active="1" :collapse="isCollapse">
-          <el-sub-menu index="1-1">
+          <el-sub-menu index="1-1" @click="loadChatHistory">
             <template #title><span>聊天记录</span></template>
             <!-- 今天的记录 -->
             <el-menu-item-group>
               <template #title><span>今天</span></template>
               <el-menu-item v-for="(chat, index) in chatDataToday" :key="'today-' + index">
-                模块ID: {{ chat.module_id }} - 提示: {{ chat.prompt }} - 日期: {{ chat.date }}
+                {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 近三天的记录 -->
             <el-menu-item-group>
               <template #title><span>近三天</span></template>
               <el-menu-item v-for="(chat, index) in chatDataLast3Days" :key="'last3days-' + index">
-                模块ID: {{ chat.module_id }} - 提示: {{ chat.prompt }} - 日期: {{ chat.date }}
+                {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 本周的记录 -->
             <el-menu-item-group>
               <template #title><span>本周</span></template>
               <el-menu-item v-for="(chat, index) in chatDataThisWeek" :key="'thisweek-' + index">
-                模块ID: {{ chat.module_id }} - 提示: {{ chat.prompt }} - 日期: {{ chat.date }}
+                {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 本月的记录 -->
             <el-menu-item-group>
               <template #title><span>本月</span></template>
               <el-menu-item v-for="(chat, index) in chatDataThisMonth" :key="'thismonth-' + index">
-                模块ID: {{ chat.module_id }} - 提示: {{ chat.prompt }} - 日期: {{ chat.date }}
+                {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 更久之前的记录 -->
             <el-menu-item-group>
               <template #title><span>更久之前</span></template>
               <el-menu-item v-for="(chat, index) in chatDataOlder" :key="'older-' + index">
-                模块ID: {{ chat.module_id }} - 提示: {{ chat.prompt }} - 日期: {{ chat.date }}
+                {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
@@ -137,10 +166,28 @@ export default {
         </el-card>
       </el-aside>
       <el-main>
-          <el-main style="height: 80%;">
-          </el-main>
-          <!-- 输入框 -->
-          <el-input v-model="input" :autosize="{ minRows: 1, maxRows: 5 }" type="textarea" placeholder="Please input" clearable/>
+        <el-main style="height: 80%;">
+          <!-- 对话主体 -->
+          <div v-for="(message, index) in chatHistory" :key="index" class="chat-message">
+            <div v-if="message.type === 'user'">
+              <strong>User:</strong> {{ message.content }}
+            </div>
+            <div v-else>
+              <strong>Bot:</strong>
+              <img v-if="message.content.picture" :src="message.content.picture" alt="Response Image" />
+              <p v-else>No image generated.</p>
+            </div>
+          </div>
+        </el-main>
+        <!-- 输入框 -->
+        <el-input
+          v-model="input"
+          :autosize="{ minRows: 1, maxRows: 5 }"
+          type="textarea"
+          placeholder="Please input"
+          clearable
+          @keyup.enter.native="handleSubmit"
+        />
       </el-main>
     </el-container>
   </div>

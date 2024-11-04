@@ -390,6 +390,8 @@ def chat():
             user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
             user.balance -= 1
             history = History(user_id=user.id, amount=-1)
+            chat = Chat(user_id=user.id, module_id=request.json.get('module_id'), prompt=request.json.get('prompt'), picture="")
+            db.session.add(chat)
             db.session.add(history)
             db.session.commit()
             return {
