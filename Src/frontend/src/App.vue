@@ -167,19 +167,24 @@ export default {
       </el-aside>
       <el-main>
         <el-main style="height: 80%;">
-          <!-- 对话主体 -->
-          <div v-for="(message, index) in chatHistory" :key="index" class="chat-message">
-            <div v-if="message.type === 'user'">
-              <strong>User:</strong> {{ message.content }}
+          <!-- Display chat history -->
+          <div v-for="(message, index) in chatHistory" :key="index" class="chat-message" :class="message.type === 'user' ? 'user-container' : 'bot-container'">
+            <!-- Bot's message (left) -->
+            <div v-if="message.type === 'bot'" class="bot-message bubble">
+              <div v-if="message.content.picture">
+                <img :src="message.content.picture" alt="Response Image" />
+              </div>
+              <p v-else><strong>No image generated.</strong></p>
             </div>
-            <div v-else>
-              <strong>Bot:</strong>
-              <img v-if="message.content.picture" :src="message.content.picture" alt="Response Image" />
-              <p v-else>No image generated.</p>
+
+            <!-- User's message (right) -->
+            <div v-else class="user-message bubble">
+              <strong>{{ message.content }}</strong>
             </div>
           </div>
         </el-main>
-        <!-- 输入框 -->
+
+        <!-- Input Box -->
         <el-input
           v-model="input"
           :autosize="{ minRows: 1, maxRows: 5 }"
@@ -195,5 +200,57 @@ export default {
 </template>
 
 <style scoped>
+.chat-message {
+  display: flex;
+  margin-bottom: 10px;
+}
 
+.bot-container {
+  justify-content: flex-start;
+}
+
+.user-container {
+  justify-content: flex-end;
+}
+
+.user-message {
+  background-color: #d1e7ff;
+  color: #000;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+}
+
+.bot-message {
+  background-color: #f0f0f0;
+  color: #000;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+}
+
+.bubble {
+  position: relative;
+  padding: 10px;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
+
+.user-message::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: -10px;
+  border: 5px solid transparent;
+  border-left-color: #d1e7ff;
+}
+
+.bot-message::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -10px;
+  border: 5px solid transparent;
+  border-right-color: #f0f0f0;
+}
 </style>
