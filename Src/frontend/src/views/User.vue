@@ -65,14 +65,14 @@ export default {
             const option = {
               xAxis: {
                 type: 'category',
-                data: months.map(month => `${month}月`), // 处理月份名称
+                data: months.map((month: any) => `${month}月`), // 处理月份名称
               },
               yAxis: {
                 type: 'value'
               },
               series: [
                 {
-                  data: values.map(value => Math.abs(value)), // 将消费金额转为正数
+                  data: values.map((value: number) => Math.abs(value)), // 将消费金额转为正数
                   type: 'line',
                   smooth: true, // 平滑曲线
                 }

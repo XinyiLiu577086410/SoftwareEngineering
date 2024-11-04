@@ -358,6 +358,31 @@ def history():
             "result": -1,
         }
 
+@app.route('/api/chat_history', methods = ['GET'])
+def chat_history():
+    if 'username' in session:
+        try:
+            user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
+            chat = db.session.execute(db.select(Chat).filter_by(user_id=user.id)).scalars().all()
+            return {
+                "status": 0,
+                "result": 0,
+                "chat": [{"module_id": c.module_id,
+                          "prompt": c.prompt,
+                          "picture": c.picture,
+                          "date": c.date} for c in chat],
+            }
+        except sqlalchemy.exc.NoResultFound:
+            return {
+                "status": 0,
+                "result": -2,
+            }
+    else:
+        return {
+            "status": 0,
+            "result": -1,
+        }
+
 @app.route('/api/chat', methods = ['POST'])
 def chat():
     if 'username' in session:
