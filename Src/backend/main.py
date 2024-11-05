@@ -398,7 +398,7 @@ def chat():
                 "status": 0,
                 "result": 0,
                 "balance": user.balance,
-                "picture": "",
+                "picture": "/pictures/" + "example.jpeg",
             }
         except sqlalchemy.exc.NoResultFound:
             return {

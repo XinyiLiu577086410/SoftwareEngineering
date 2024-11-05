@@ -165,14 +165,14 @@ export default {
           </div>
         </el-card>
       </el-aside>
-      <el-main>
-        <el-main style="height: 80%;">
+      <el-main style="display: flex; flex-direction: column; height: 100%;">
+        <div style="flex: 1; overflow-y: auto; padding: 10px;">
           <!-- Display chat history -->
           <div v-for="(message, index) in chatHistory" :key="index" class="chat-message" :class="message.type === 'user' ? 'user-container' : 'bot-container'">
             <!-- Bot's message (left) -->
             <div v-if="message.type === 'bot'" class="bot-message bubble">
               <div v-if="message.content.picture">
-                <img :src="message.content.picture" alt="Response Image" />
+                <img :src="message.content.picture" alt="Response Image" class="response-image"/>
               </div>
               <p v-else><strong>No image generated.</strong></p>
             </div>
@@ -182,17 +182,19 @@ export default {
               <strong>{{ message.content }}</strong>
             </div>
           </div>
-        </el-main>
+        </div>
 
         <!-- Input Box -->
-        <el-input
-          v-model="input"
-          :autosize="{ minRows: 1, maxRows: 5 }"
-          type="textarea"
-          placeholder="Please input"
-          clearable
-          @keyup.enter.native="handleSubmit"
-        />
+        <div class="input-bubble" style="padding: 10px; display: flex; align-items: flex-end;">
+          <el-input
+            v-model="input"
+            :autosize="{ minRows: 1, maxRows: 10 }"
+            type="textarea"
+            placeholder="Please input"
+            clearable
+            @keyup.enter.native="handleSubmit"
+          />
+        </div>
       </el-main>
     </el-container>
   </div>
@@ -253,4 +255,20 @@ export default {
   border: 5px solid transparent;
   border-right-color: #f0f0f0;
 }
+
+.response-image {
+  max-width: 100%;
+  max-height: 50%;
+  object-fit: contain;
+}
+
+.input-bubble {
+  background-color: #d1e7ff;
+  border-radius: 20px;
+  padding: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
 </style>
