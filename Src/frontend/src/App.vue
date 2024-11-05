@@ -82,6 +82,13 @@ export default {
         this.input = '';
       }
     },
+    addToChatHistory(chat : any) {
+      this.chatHistory = [];
+      this.chatHistory.push({ type: 'user', content: chat.prompt });
+      if (chat.picture) {
+        this.chatHistory.push({ type: 'bot', content: { picture: chat.picture || null } });
+      }
+    },
     async handleLogout() {
       try {
         const response = await this.$axios.get('/api/logout');
@@ -110,40 +117,40 @@ export default {
       <el-aside>
         <!-- 目录栏 -->
         <el-menu default-active="1" :collapse="isCollapse">
-          <el-sub-menu index="1-1" @click="loadChatHistory">
+          <el-sub-menu index="1" @click="loadChatHistory">
             <template #title><span>聊天记录</span></template>
             <!-- 今天的记录 -->
             <el-menu-item-group>
               <template #title><span>今天</span></template>
-              <el-menu-item v-for="(chat, index) in chatDataToday" :key="'today-' + index">
+              <el-menu-item v-for="(chat, index) in chatDataToday" :index="'1-1-' + index" key="'today-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 近三天的记录 -->
             <el-menu-item-group>
               <template #title><span>近三天</span></template>
-              <el-menu-item v-for="(chat, index) in chatDataLast3Days" :key="'last3days-' + index">
+              <el-menu-item v-for="(chat, index) in chatDataLast3Days" :index="'1-2-' + index" key="'last3days-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 本周的记录 -->
             <el-menu-item-group>
               <template #title><span>本周</span></template>
-              <el-menu-item v-for="(chat, index) in chatDataThisWeek" :key="'thisweek-' + index">
+              <el-menu-item v-for="(chat, index) in chatDataThisWeek" :index="'1-3-' + index" key="'thisweek-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 本月的记录 -->
             <el-menu-item-group>
               <template #title><span>本月</span></template>
-              <el-menu-item v-for="(chat, index) in chatDataThisMonth" :key="'thismonth-' + index">
+              <el-menu-item v-for="(chat, index) in chatDataThisMonth" :index="'1-4-' + index" key="'thismonth-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
             <!-- 更久之前的记录 -->
             <el-menu-item-group>
               <template #title><span>更久之前</span></template>
-              <el-menu-item v-for="(chat, index) in chatDataOlder" :key="'older-' + index">
+              <el-menu-item v-for="(chat, index) in chatDataOlder" :index="'1-5-' + index" key="'older-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
               </el-menu-item>
             </el-menu-item-group>
