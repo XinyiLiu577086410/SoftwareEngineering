@@ -1,12 +1,65 @@
+from abc import abstractmethod
 from flask import Flask, request, session, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from datetime import datetime
+import os
+import json
+import base64
+from tencentcloud.common import credential
+from tencentcloud.hunyuan.v20230901 import hunyuan_client, models
 
 class Base(DeclarativeBase):
     pass
+
+class ChatModel:
+    def __init__(self, module_id):
+        self.module_id = module_id
+
+    @abstractmethod
+    def toChat(self, prompt):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+class HYChatModel(ChatModel):
+    def __init__(self, module_id):
+        super().__init__(module_id)
+        self.cred = credential.Credential(
+            os.environ.get("TENCENTCLOUD_SECRET_ID"),
+            os.environ.get("TENCENTCLOUD_SECRET_KEY")
+        )
+        self.client = hunyuan_client.HunyuanClient(self.cred, "ap-guangzhou")
+        self.req = models.TextToImageLiteRequest()
+
+    def toChat(self, prompt):
+        try:
+            params = {
+                "Prompt": prompt,
+                "Style": "401",
+                "LogoAdd": 0
+            }
+            self.req.from_json_string(json.dumps(params))
+            resp = self.client.TextToImageLite(self.req)
+
+            image_str = json.loads(resp.to_json_string()).get('ResultImage')
+            image_data = base64.b64decode(image_str)
+            filename = str(datetime.now().timestamp()) + ".jpg"
+            with open("./pictures/" + filename, 'wb') as file:
+                file.write(image_data)
+
+            return filename
+        except Exception as err:
+            app.logger.error(err)
+
+    def __repr__(self):
+        return '<Model %r>' % self.module_id
+
+models = [HYChatModel(0)]
 
 app = Flask(__name__)
 CORS(app)
@@ -389,8 +442,9 @@ def chat():
         try:
             user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
             user.balance -= 1
+            result_picture = models[request.json.get('module_id')].toChat(request.json.get('prompt'))
             history = History(user_id=user.id, amount=-1)
-            chat = Chat(user_id=user.id, module_id=request.json.get('module_id'), prompt=request.json.get('prompt'), picture="")
+            chat = Chat(user_id=user.id, module_id=request.json.get('module_id'), prompt=request.json.get('prompt'), picture="/pictures/" + result_picture)
             db.session.add(chat)
             db.session.add(history)
             db.session.commit()
@@ -398,7 +452,7 @@ def chat():
                 "status": 0,
                 "result": 0,
                 "balance": user.balance,
-                "picture": "/pictures/" + "example.jpeg",
+                "picture": "/pictures/" + result_picture,
             }
         except sqlalchemy.exc.NoResultFound:
             return {
