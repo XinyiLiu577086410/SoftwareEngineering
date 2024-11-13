@@ -483,7 +483,7 @@ def get_picture(filename):
         }
 
 @app.route('/api/models', methods = ['GET'])
-def models():
+def get_models():
     return {
         "status": 0,
         "result": 0,

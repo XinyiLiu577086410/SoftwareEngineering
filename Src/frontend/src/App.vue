@@ -173,7 +173,7 @@ export default {
             </el-menu-item-group>
           </el-sub-menu>
           <!-- 模型选择菜单 -->
-          <el-sub-menu index="2">
+          <el-sub-menu index="2" @click="loadModels">
             <template #title><span>模型选择</span></template>
             <el-menu-item-group>
               <template #title><span>可用模型</span></template>

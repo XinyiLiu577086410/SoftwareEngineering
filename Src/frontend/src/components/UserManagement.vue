@@ -14,15 +14,34 @@ export default {
       this.$message.success(`管理用户: ${row.username}`);
     },
     // 处理删除操作
-    async handleDelete(row : any) {
+    async handleDelete(row: any) {
       try {
+        // 弹出确认删除提示框
         await this.$confirm(`确认删除用户 ${row.username} 吗？`, '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         });
-        // 发起删除请求（示例代码中未实现具体删除操作）
-        this.$message.success(`用户 ${row.username} 已删除`);
+        // 发起删除请求
+        const response = await this.$axios.get('/api/delete', {
+          params: { username: row.username } // 传递需要删除的用户名作为参数
+        });
+        // 根据返回的结果判断是否删除成功
+        if (response.data.status === 0 && response.data.result === 0) {
+          // 删除成功，提示并刷新数据
+          this.$message.success(`用户 ${row.username} 已删除`);
+          this.loadUserData();
+        } else if (response.data.result === -5) {
+          this.$message.error(`用户 ${row.username} 不存在`);
+        } else if (response.data.result === -4) {
+          this.$message.error('用户名参数缺失');
+        } else if (response.data.result === -3) {
+          this.$message.error('权限不足');
+        } else if (response.data.result === -2) {
+          this.$message.error('登录的用户不存在');
+        } else {
+          this.$message.error('用户未登录');
+        }
       } catch {
         this.$message.info('删除已取消');
       }
