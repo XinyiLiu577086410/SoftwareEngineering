@@ -15,8 +15,15 @@ class Base(DeclarativeBase):
     pass
 
 class ChatModel:
-    def __init__(self, module_id):
+    def __init__(self, module_id, name):
         self.module_id = module_id
+        self.name = name
+
+    def get_config(self):
+        return {
+            "module_id": self.module_id,
+            "name": self.name,
+        }
 
     @abstractmethod
     def toChat(self, prompt):
@@ -27,8 +34,8 @@ class ChatModel:
         pass
 
 class HYChatModel(ChatModel):
-    def __init__(self, module_id):
-        super().__init__(module_id)
+    def __init__(self, module_id, name):
+        super().__init__(module_id, name)
         self.cred = credential.Credential(
             os.environ.get("TENCENTCLOUD_SECRET_ID"),
             os.environ.get("TENCENTCLOUD_SECRET_KEY")
@@ -57,9 +64,9 @@ class HYChatModel(ChatModel):
             app.logger.error(err)
 
     def __repr__(self):
-        return '<Model %r>' % self.module_id
+        return '<Model %r>' % self.name
 
-models = [HYChatModel(0)]
+avail_models = [HYChatModel(0, "HYModel")]
 
 app = Flask(__name__)
 CORS(app)
@@ -474,6 +481,14 @@ def get_picture(filename):
             "status": 0,
             "result": -1,
         }
+
+@app.route('/api/models', methods = ['GET'])
+def models():
+    return {
+        "status": 0,
+        "result": 0,
+        "models": [m.get_config() for m in avail_models],
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)

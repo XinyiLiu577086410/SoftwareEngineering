@@ -18,6 +18,7 @@ export default {
       chatDataThisWeek : [] as Array<any>,
       chatDataThisMonth : [] as Array<any>,
       chatDataOlder : [] as Array<any>,
+      models : [] as Array<any>,
     }
   },
   methods: {
@@ -103,10 +104,26 @@ export default {
         this.$message.error('请求出错，请稍后重试');
         console.error('Logout error:', error);
       }
+    },
+    async loadModels(){
+        try {
+          const response = await this.$axios.get('/api/models');
+          if (response.data.result === 0) {
+            this.models = response.data.models;
+          } else {
+            console.error('获取模型数据失败');
+          }
+        } catch (error) {
+          console.error('加载模型数据出错', error);
+        }
+    },
+    selectModel(model: any){
+      this.module_id = model.module_id;
     }
   },
   mounted() {
     this.loadChatHistory();
+    this.loadModels();
   }
 }
 </script>
@@ -152,6 +169,16 @@ export default {
               <template #title><span>更久之前</span></template>
               <el-menu-item v-for="(chat, index) in chatDataOlder" :index="'1-5-' + index" key="'older-' + index" @click="addToChatHistory(chat)">
                 {{ chat.prompt }}
+              </el-menu-item>
+            </el-menu-item-group>
+          </el-sub-menu>
+          <!-- 模型选择菜单 -->
+          <el-sub-menu index="2">
+            <template #title><span>模型选择</span></template>
+            <el-menu-item-group>
+              <template #title><span>可用模型</span></template>
+              <el-menu-item v-for="(model, index) in models" :index="'2-' + index" :key="'model-' + model.module_id" @click="selectModel(model)">
+                {{ model.name }}
               </el-menu-item>
             </el-menu-item-group>
           </el-sub-menu>
