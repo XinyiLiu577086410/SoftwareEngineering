@@ -95,6 +95,13 @@ export default {
         const response = await this.$axios.get('/api/logout');
         if (response.data.result === 0) {
           this.loginStatus.logout();
+          this.chatHistory = [];
+          this.chatDataToday = [];
+          this.chatDataLast3Days = [];
+          this.chatDataThisWeek = [];
+          this.chatDataThisMonth = [];
+          this.chatDataOlder = [];
+          this.loadModels();
           this.$message.success('登出成功');
           this.$router.push('/');
         } else {

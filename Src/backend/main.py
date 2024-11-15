@@ -34,8 +34,9 @@ class ChatModel:
         pass
 
 class HYChatModel(ChatModel):
-    def __init__(self, module_id, name):
+    def __init__(self, module_id, name, style):
         super().__init__(module_id, name)
+        self.style = style
         self.cred = credential.Credential(
             os.environ.get("TENCENTCLOUD_SECRET_ID"),
             os.environ.get("TENCENTCLOUD_SECRET_KEY")
@@ -47,7 +48,7 @@ class HYChatModel(ChatModel):
         try:
             params = {
                 "Prompt": prompt,
-                "Style": "401",
+                "Style": self.style,
                 "LogoAdd": 0
             }
             self.req.from_json_string(json.dumps(params))
@@ -66,7 +67,7 @@ class HYChatModel(ChatModel):
     def __repr__(self):
         return '<Model %r>' % self.name
 
-avail_models = [HYChatModel(0, "HYModel")]
+avail_models = [HYChatModel(0, "HYModel", "401"), HYChatModel(1, "xDiT", "201")]
 
 app = Flask(__name__)
 CORS(app)
@@ -449,7 +450,7 @@ def chat():
         try:
             user = db.session.execute(db.select(User).filter_by(username=session['username'])).scalar_one()
             user.balance -= 1
-            result_picture = models[request.json.get('module_id')].toChat(request.json.get('prompt'))
+            result_picture = avail_models[request.json.get('module_id')].toChat(request.json.get('prompt'))
             history = History(user_id=user.id, amount=-1)
             chat = Chat(user_id=user.id, module_id=request.json.get('module_id'), prompt=request.json.get('prompt'), picture="/pictures/" + result_picture)
             db.session.add(chat)
